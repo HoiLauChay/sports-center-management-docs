@@ -52,6 +52,7 @@ curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://<domain>/api/v
 | Sĩ số lớp | Mỗi giờ, phút 10 | `POST /api/v1/cron/class-min-students` |
 | Nhắc lịch | Mỗi giờ, phút 00 | `POST /api/v1/cron/reminders` |
 | Dọn dẹp | Hàng ngày, 03:00 | `POST /api/v1/cron/cleanup` |
+| Đồng bộ SePay | Mỗi giờ, phút 20 | `POST /api/v1/cron/sepay-sync` |
 | Điểm danh mặc định *(F4)* | Mỗi giờ, phút 15 | `POST /api/v1/cron/attendance-defaults` |
 
 - Nội dung từng job: detail.v4 mục 4.0.5. Mỗi lần gọi xử lý theo lô để xong trong giới hạn thời gian của function (300 giây); còn việc thì lần gọi sau xử lý tiếp.
@@ -66,6 +67,7 @@ curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://<domain>/api/v
 | `TURNSTILE_SECRET_KEY` | api | Xác thực captcha |
 | `SEPAY_WEBHOOK_API_KEY` | api | Xác thực webhook SePay |
 | `SEPAY_BANK_ACCOUNT`, `SEPAY_BANK_CODE`, `SEPAY_ACCOUNT_NAME` | api | Thông tin tài khoản nhận tiền và tạo QR |
+| `SEPAY_API_TOKEN` | api | Gọi SePay API (đồng bộ bù, đối soát) |
 | `CRON_SECRET` | api | Xác thực endpoint cron |
 | `BLOB_READ_WRITE_TOKEN` | api | Cấp token upload Vercel Blob |
 | `VITE_TURNSTILE_SITE_KEY` | web | Site key captcha |
@@ -125,7 +127,7 @@ Chưa đăng nhập: chỉ Landing + các trang auth, route khác redirect về 
 ### Manager
 
 - Reports (`/admin/reports`): overview, doanh thu, dòng tiền ví, thành viên, sân, khóa học, export
-- Bank transactions (`/admin/bank-transactions`): giao dịch tiền vào từ SePay, lọc chưa khớp → gán cho member hoặc bỏ qua
+- Bank transactions (`/admin/bank-transactions`): giao dịch tiền vào từ SePay, lọc chưa khớp → gán cho member hoặc bỏ qua; tab đối soát theo ngày với SePay
 - Users (`/admin/users`), User detail (`/admin/users/{id}`): tạo Coach/Receptionist, sửa, đổi trạng thái
 - Audit logs (`/admin/audit-logs`): lịch sử thao tác theo khoảng thời gian
 - Specializations (`/admin/specializations`): duyệt/từ chối bộ môn HLV
