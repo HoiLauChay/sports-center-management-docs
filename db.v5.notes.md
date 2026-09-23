@@ -144,6 +144,16 @@ CHECK chỉ kiểm tra được dữ liệu trong cùng row. Các invariant dư�
 - UNMATCHED → IGNORED: tiền không thuộc hệ thống (hoàn trả ngoài hệ thống nếu cần); bắt buộc `note`, audit.
 - Một `bank_transactions` chỉ credit tối đa một lần (unique `wallet_transactions.bank_transaction_id`).
 
+**Đồng bộ bù** (job `sepay-sync`, mỗi giờ)
+- Gọi `GET https://my.sepay.vn/userapi/transactions/list?account_number={SEPAY_BANK_ACCOUNT}&since_id={MAX(bank_transactions.sepay_id)}` với header `Authorization: Bearer {SEPAY_API_TOKEN}`; bảng rỗng thì dùng `transaction_date_min` = 7 ngày trước.
+- Bỏ các dòng `amount_in = 0` (tiền ra). Map `id → sepay_id`, `amount_in → amount`, `transaction_content → content`, `code → payment_code`, `reference_number → reference_code`, `bank_brand_name → bank_name`, `transaction_date` (giờ VN) → `transaction_date`; lưu nguyên dòng vào `raw_payload`.
+- Mỗi dòng đi qua đúng bước 3–6 của webhook; `sepay_id` unique nên webhook đến muộn hoặc job chạy lặp đều bị bỏ qua.
+- Tối đa 5000 dòng mỗi lần gọi; còn nữa thì gọi tiếp với `since_id` mới. SePay giới hạn 3 request/giây; nhận 429 thì dừng, lần chạy sau xử lý tiếp.
+
+**Đối soát theo ngày**
+- Tính khi Manager mở trang, không lưu kết quả. SePay: `transactions/list` với `transaction_date_min/max`, cộng `amount_in > 0` theo ngày. Hệ thống: `bank_transactions` cùng `account_number`, group theo ngày của `transaction_date` (giờ VN).
+- `matched` khi số lượng và tổng tiền bằng nhau. Lệch thường là do webhook chưa đến và job đồng bộ chưa chạy; `missingSepayIds` = id có trên SePay mà không có `sepay_id` tương ứng.
+
 **Giới hạn gói Free**: 50 giao dịch tiền vào/tháng (vượt tính phí theo lượt), 11 ngân hàng, tài khoản cá nhân hoặc doanh nghiệp. SePay không có API hoàn tiền: mọi khoản hoàn đi về ví, không hoàn về ngân hàng.
 
 ## 6. Concurrency protocol
