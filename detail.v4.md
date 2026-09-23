@@ -211,6 +211,7 @@ Mỗi thông báo định kỳ chỉ gửi một lần cho mỗi người/sự k
 | Sĩ số lớp | Hàng giờ | Lớp sắp đến ngày bắt đầu mà thiếu sĩ số (BR_2.20) |
 | Nhắc lịch | Hàng giờ | Booking/buổi học bắt đầu trong 1 giờ tới; thời điểm gửi nằm trong cửa sổ, không cam kết đúng 60 phút |
 | Dọn dẹp | Hàng ngày | Xóa nhóm 🟡; chuyển yêu cầu nạp ví quá hạn sang EXPIRED |
+| Đồng bộ SePay | Hàng giờ | Lấy từ SePay các giao dịch tiền vào mà hệ thống chưa nhận được và xử lý như giao dịch mới (BR_3.6) |
 | Điểm danh mặc định *(F4)* | Hàng giờ | Buổi học không bị hủy đã kết thúc: member thuộc buổi mà chưa có điểm danh → `ABSENT`; không ghi đè điểm danh đã có |
 
 - Mọi job chạy lại nhiều lần không gây xử lý lặp (không thu tiền, hoàn tiền, gửi thông báo hai lần).
@@ -399,7 +400,7 @@ Quản lý ví điện tử, nạp ví qua chuyển khoản (SePay), giao dịch
 | UC_3.18 | Thêm dịch vụ vào đơn đang soạn | Member, Receptionist | Chọn một dịch vụ và đủ thông tin theo mục 2.4.1, thêm một dòng vào đơn của cùng người mua. Hệ thống kiểm tra sơ bộ và tính lại tạm tính/ưu đãi, chưa thu tiền hoặc giữ chỗ |
 | UC_3.19 | Sửa/xóa dòng trong đơn đang soạn | Member, Receptionist | Sửa lựa chọn hoặc xóa dòng trước thanh toán; kiểm tra lại và tính lại tổng/ưu đãi. Xóa dòng cuối → đơn rỗng, không thể thanh toán |
 | UC_3.20 | Xem lại và xác nhận đơn | Member, Receptionist | Xem tất cả dòng, lịch/kỳ, giá gốc, giảm giá và tổng phải trả; chọn phương thức thanh toán. Server tính và kiểm tra lại toàn bộ; giá hoặc điều kiện thay đổi thì yêu cầu xem lại trước khi thanh toán |
-| UC_3.21 | Đối soát giao dịch ngân hàng | Manager | Xem các giao dịch tiền vào do SePay báo về. Giao dịch không khớp yêu cầu nạp nào (sai nội dung, sai số tiền, chuyển trùng) → gán cho một member để cộng ví, hoặc đánh dấu bỏ qua kèm ghi chú |
+| UC_3.21 | Đối soát giao dịch ngân hàng | Manager | Xem các giao dịch tiền vào do SePay báo về. Giao dịch không khớp yêu cầu nạp nào (sai nội dung, sai số tiền, chuyển trùng) → gán cho một member để cộng ví, hoặc đánh dấu bỏ qua kèm ghi chú. Xem đối soát tổng tiền vào theo từng ngày giữa SePay và hệ thống; ngày lệch được đánh dấu |
 | UC_3.22 | Báo cáo dòng tiền ví | Manager | Theo khoảng thời gian: tổng nạp (chuyển khoản / tại quầy), tổng thanh toán bằng ví, tổng hoàn về ví, tổng số dư ví của member, giao dịch ngân hàng chưa xử lý |
 
 #### 5.3.3 Business Rules
@@ -411,7 +412,7 @@ Quản lý ví điện tử, nạp ví qua chuyển khoản (SePay), giao dịch
 | BR_3.3 | **Loại giao dịch ví** | NẠP (TOP_UP): không gắn order; gắn giao dịch ngân hàng khi nạp qua chuyển khoản. THANH TOÁN (PAYMENT): gắn order, tối đa một lần mỗi order. HOÀN (REFUND): gắn order và đúng một dòng của order đó; một dòng có thể được hoàn nhiều lần cho các phần khác nhau. Số tiền luôn dương; đơn miễn phí không tạo giao dịch 0 đồng |
 | BR_3.4 | **Hóa đơn bất biến** | Order được tạo ở trạng thái PAID cùng ≥1 dòng. Thông tin người mua, coupon và từng dòng (tên, lịch/kỳ, đơn giá, quyền lợi, phân bổ) được chốt lúc thanh toán. Không thêm/xóa/sửa dòng hoặc giá của hóa đơn đã thanh toán; chỉ số tiền đã hoàn tăng dần |
 | BR_3.5 | **Coupon cho order nhiều loại** | Một mã/order, chỉ cho member có tài khoản; quota đếm theo order (kể cả order đã hoàn không trả lượt). Chỉ các dòng thuộc loại áp dụng được giảm; ngưỡng tối thiểu xét tổng giá gốc các dòng hợp lệ. Giảm FIXED/PERCENT (có trần) tính một lần trên tổng sau quyền lợi membership của các dòng hợp lệ, không vượt tổng đó, rồi phân bổ về từng dòng theo tỷ trọng (BR_3.12). Không tính lại coupon khi hoàn tiền |
-| BR_3.6 | **Nạp ví qua SePay** | Yêu cầu nạp có mã thanh toán duy nhất, số tiền ≥ mức tối thiểu cấu hình, thời hạn hiển thị mã. SePay gửi giao dịch tiền vào kèm khóa xác thực; hệ thống chỉ chấp nhận khi khóa đúng. Mỗi giao dịch ngân hàng được ghi nhận đúng một lần dù SePay gửi lại nhiều lần. Chỉ cộng ví tự động khi nội dung chứa đúng mã của một yêu cầu chưa thành công và số tiền khớp chính xác; tiền đến sau khi mã hết hạn vẫn được cộng. Mọi trường hợp khác → giao dịch chưa khớp, chờ Manager đối soát (UC_3.21). Mỗi giao dịch ngân hàng cộng ví tối đa một lần |
+| BR_3.6 | **Nạp ví qua SePay** | Yêu cầu nạp có mã thanh toán duy nhất, số tiền ≥ mức tối thiểu cấu hình, thời hạn hiển thị mã. SePay gửi giao dịch tiền vào kèm khóa xác thực; hệ thống chỉ chấp nhận khi khóa đúng. Mỗi giao dịch ngân hàng được ghi nhận đúng một lần dù SePay gửi lại nhiều lần. Chỉ cộng ví tự động khi nội dung chứa đúng mã của một yêu cầu chưa thành công và số tiền khớp chính xác; tiền đến sau khi mã hết hạn vẫn được cộng. Mọi trường hợp khác → giao dịch chưa khớp, chờ Manager đối soát (UC_3.21). Mỗi giao dịch ngân hàng cộng ví tối đa một lần. Giao dịch mà hệ thống không nhận được thông báo (SePay đã hết lượt gửi lại) được job đồng bộ lấy bổ sung và xử lý như trên |
 | BR_3.7 | **Trạng thái order và hủy dịch vụ** | PAID khi chưa hoàn; PARTIALLY_REFUNDED khi đã hoàn một phần; REFUNDED khi tổng > 0 và đã hoàn toàn bộ. Hủy một dịch vụ không tự hủy các dòng khác. Membership không hoàn, nhưng booking cùng order vẫn có thể hoàn. Guest/quá deadline/dòng miễn phí có thể hủy mà không hoàn tiền |
 | BR_3.8 | **Chỉ Manager xem báo cáo** | Overview, báo cáo và đối soát chỉ Manager truy cập |
 | BR_3.9 | **Báo cáo theo thời gian** | Lọc theo ngày, tuần, tháng, năm, khoảng tùy chọn |
@@ -518,6 +519,7 @@ Quản lý check-in trung tâm, điểm danh buổi học, session notes và đ�
 - SePay gửi lại cùng một giao dịch, checkout hoặc hoàn tiền gửi lại: không cộng/trừ/hoàn lần thứ hai; lỗi giữa chừng không để lại order/dịch vụ/số dư lệch nhau.
 - Chuyển khoản sai nội dung, sai số tiền hoặc chuyển hai lần cho cùng một mã: không tự cộng ví, xuất hiện trong danh sách chưa khớp; Manager gán cho member thì cộng đúng một lần.
 - Chuyển khoản sau khi mã hết hạn nhưng đúng mã và số tiền: vẫn được cộng ví.
+- Hệ thống không nhận được thông báo của SePay cho một giao dịch: job đồng bộ bổ sung giao dịch và cộng ví đúng một lần; chạy đồng bộ nhiều lần không cộng thêm. Đối soát theo ngày khớp giữa SePay và hệ thống sau khi đồng bộ.
 - Gia hạn sớm giữ từng kỳ; mua lúc job trễ không vướng gói ACTIVE cũ; job và mua đồng thời không tạo hai gói hoặc thu hai lần. Manager sửa quyền lợi gói không đổi quyền lợi của kỳ đã mua.
 - Hủy rồi đăng ký lại lớp giữ hai enrollment thuộc các đơn tương ứng; chuyên môn REJECTED được gửi lại nhưng APPROVED không tạo yêu cầu trùng; F4 xóa mềm đánh giá rồi tạo lại vẫn giữ lịch sử.
 - Dời/hủy buổi cuối cập nhật ngày lớp và trạng thái đúng; lớp đã kết thúc không nhận đăng ký mới; lớp mất Coach vẫn hiện lịch cho member đã mua.
