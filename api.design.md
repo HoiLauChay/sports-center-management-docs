@@ -1428,6 +1428,28 @@ $BANK_TX
   ```
   - response: `$BANK_TX`
 
+- GET /api/v1/bank-transactions/reconciliation:
+  - role: manager
+  - query: `from`, `to` (tối đa 31 ngày)
+  - So tổng giao dịch tiền vào theo ngày (giờ VN) của tài khoản nhận tiền: số liệu SePay lấy qua `GET https://my.sepay.vn/userapi/transactions/list`, số liệu hệ thống từ các giao dịch ngân hàng đã ghi nhận
+  - response:
+
+  ```
+  {
+    "days": [
+      {
+        "date": Date,
+        "sepay": { "count": int, "amount": Money },
+        "system": { "count": int, "amount": Money },
+        "matched": bool,
+        "missingSepayIds": [int]
+      }
+    ]
+  }
+  ```
+  - `missingSepayIds`: giao dịch có trên SePay nhưng hệ thống chưa ghi nhận (job `sepay-sync` sẽ bổ sung)
+  - SePay API lỗi hoặc quá giới hạn tần suất → 503 `UPSTREAM_UNAVAILABLE`
+
 ## Coupon
 
 ```
@@ -1829,6 +1851,9 @@ $EVALUATION
 
 - POST /api/v1/cron/cleanup:
   - detail.v4 mục 4.0.2 (nhóm 🟡) và 4.0.5; gửi lại email chưa gửi được
+
+- POST /api/v1/cron/sepay-sync:
+  - BR_3.6 (thuật toán: `db.v5.notes.md` §5)
 
 - POST /api/v1/cron/attendance-defaults *(F4)*:
   - BR_4.2
