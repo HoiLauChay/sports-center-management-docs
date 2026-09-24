@@ -20,6 +20,7 @@ Mục 8 "Quyết định nghiệp vụ còn mở" của v3 được bỏ; mục 
 
 | Nội dung | v3 | v4 | Lý do |
 |---|---|---|---|
+| Scope | F1–F3 bắt buộc + F4 tùy chọn | F1–F3 bắt buộc; F4 là flow phụ nhóm chọn trong 3 flow phụ của đề bài (F4, F5, F6); F5, F6 ngoài phạm vi | Đề bài yêu cầu chọn 1 flow phụ để đạt điểm tối đa |
 | Tech stack | Express + React + PostgreSQL (Prisma) | Thêm monorepo Turborepo + Bun, Supabase, Vercel, Resend, SePay | Chuyển toàn bộ sang Vercel để giảm chi phí |
 | Ngôn ngữ hiển thị | Tiếng Anh | Tiếng Việt | Khớp với code hiện tại và thị trường (VND, ngân hàng VN) |
 | Phiên đăng nhập (BR_G.2, UC_1.2) | Refresh JWT stateless, không thu hồi phía server | Refresh token ngẫu nhiên lưu hash, xoay vòng, phát hiện dùng lại, thu hồi được; có đăng xuất mọi thiết bị | Đã implement trong code; thu hồi phiên thật sự; chi phí chỉ một truy vấn mỗi lần làm mới phiên |
