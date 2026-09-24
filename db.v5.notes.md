@@ -25,7 +25,7 @@ Tài liệu đi kèm `db.v5.md`. `db.v5.md` chỉ chứa schema DBML (import đ�
 | 17 | Cú pháp: bỏ `>?`, chuyển CHECK từ note sang khối `checks` | `>?` không phải DBML hợp lệ; nullable FK suy ra từ cột |
 | 18 | Ref 1–1 viết theo chiều `bảng_được_tham_chiếu.id - bảng_con.fk` | Chiều ngược (như v4) khiến exporter đặt FK sai phía (ví dụ `accounts.id` tham chiếu `member_profile`) |
 
-Tổng: 35 bảng (32 bảng khi chưa triển khai F4: `center_checkins`, `class_attendance`, `member_evaluations`).
+Tổng: 35 bảng, trong đó 3 bảng thuộc Flow 4: `center_checkins`, `class_attendance`, `member_evaluations`.
 
 ## 2. SQL không biểu diễn được bằng DBML
 
