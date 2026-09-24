@@ -4,12 +4,12 @@
 
 **Tên dự án**: Sports Center Management System
 **Tech stack**: Monorepo Turborepo + Bun. Backend Express.js (TypeScript) + Prisma ORM + PostgreSQL (Supabase). Frontend React (Vite, TailwindCSS, Ant Design, TanStack Router/Query). Triển khai trên Vercel. Email qua Resend. Nạp ví qua SePay (chuyển khoản VietQR).
-**Scope**: 4 Flows (F1, F2, F3 bắt buộc + F4 tùy chọn)
+**Scope**: Flow 1, 2, 3 bắt buộc theo đề bài; Flow 4 (Training & Attendance) là flow phụ được chọn. Không làm Flow 5 (AI gợi ý bài tập) và Flow 6 (trợ lý AI)
 **Ngôn ngữ hiển thị**: Tiếng Việt
 **Platform**: Responsive Web App (không mobile app, không IoT)
 **Tài liệu liên quan**: `design.v2.md` (thiết kế sơ bộ), `api.design.md` (API), `db.v5.md` (thiết kế DB)
 
-**Out of scope**: Personal Training (thuê HLV cá nhân), rút tiền từ ví, hoàn tiền về tài khoản ngân hàng, thanh toán gateway trực tiếp cho từng đơn hàng, thanh toán thẻ quốc tế, màn hình/bảng lịch sử điểm danh riêng.
+**Out of scope**: Flow 5 (AI gợi ý bài tập), Flow 6 (trợ lý AI), Personal Training (thuê HLV cá nhân), rút tiền từ ví, hoàn tiền về tài khoản ngân hàng, thanh toán gateway trực tiếp cho từng đơn hàng, thanh toán thẻ quốc tế, màn hình/bảng lịch sử điểm danh riêng.
 
 ---
 
@@ -393,7 +393,7 @@ Quản lý ví điện tử, nạp ví qua chuyển khoản (SePay), giao dịch
 | UC_3.11 | Báo cáo doanh thu | Manager | Doanh thu theo ngày/tuần/tháng, theo loại dịch vụ |
 | UC_3.12 | Báo cáo thành viên | Manager | Số lượng member, trạng thái gói, tỷ lệ gia hạn |
 | UC_3.13 | Báo cáo sử dụng sân | Manager | Tỷ lệ lấp đầy, sân nào đặt nhiều nhất |
-| UC_3.14 | Báo cáo khóa học | Manager | Số học viên/lớp, tỷ lệ lấp đầy lớp, HLV nhiều học viên nhất. (Tỷ lệ điểm danh: chỉ khi có F4) |
+| UC_3.14 | Báo cáo khóa học | Manager | Số học viên/lớp, tỷ lệ lấp đầy lớp, HLV nhiều học viên nhất, tỷ lệ điểm danh |
 | UC_3.15 | Xuất báo cáo | Manager | Export PDF/Excel |
 | UC_3.16 | Tạo yêu cầu hỗ trợ | Member | Tạo ticket (loại, tiêu đề, nội dung) |
 | UC_3.17 | Xử lý yêu cầu hỗ trợ | Receptionist, Manager | Tiếp nhận, cập nhật trạng thái, phản hồi ticket |
@@ -439,7 +439,7 @@ Quản lý ví điện tử, nạp ví qua chuyển khoản (SePay), giao dịch
 
 ---
 
-### 🟡 Flow 4: Training & Attendance Management (OPTIONAL)
+### 🟡 Flow 4: Training & Attendance Management (FLOW PHỤ ĐƯỢC CHỌN)
 
 #### 5.4.1 Mô tả
 Quản lý check-in trung tâm, điểm danh buổi học, session notes và đánh giá học viên. **Không rule nào ở F1–F3 phụ thuộc dữ liệu của flow này.**
