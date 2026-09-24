@@ -1603,13 +1603,13 @@ $COUPON
         "enrolled": int,
         "max": int,
         "fillRate": float,
-        "attendanceRate"?: float
+        "attendanceRate": float
       }
     ],
     "topCoaches": [ { "coach": $PERSON, "students": int } ]
   }
   ```
-  - `attendanceRate` chỉ có khi bật F4
+  - `attendanceRate`: số lượt PRESENT + LATE / tổng lượt điểm danh của lớp
 
 - GET /api/v1/reports/export:
   - query: `report` (overview | revenue | wallet | members | facilities | courses), `format` (pdf | xlsx), + filter của report
