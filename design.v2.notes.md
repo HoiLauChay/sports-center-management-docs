@@ -37,6 +37,7 @@ Tài liệu đi kèm `design.v2.md` và `api.design.md`, ghi lại thay đổi s
 - **Giỏ phía client**: mỗi thao tác thêm/sửa/xóa không tốn lượt gọi function và lượt ghi DB. Lễ tân mở nhiều tab để soạn nhiều đơn song song. Mất giỏ khi đổi thiết bị là chấp nhận được vì giỏ không giữ chỗ.
 - **Polling trạng thái nạp ví** mỗi 3 giây thay vì WebSocket/SSE: function serverless không giữ kết nối lâu; SePay báo gần như tức thì nên số lượt gọi nhỏ.
 - **Giới hạn 3 yêu cầu nạp PENDING mỗi member**: chống tạo mã rác; mã chưa dùng tự hết hạn.
+- **Rate limit bằng Upstash Redis thay vì Vercel WAF**: gói Hobby của Vercel chỉ cho 1 rule rate limit mỗi project và cửa sổ tối đa 10 phút, không đủ cho 4 mức giới hạn (có cửa sổ 15 phút và 1 giờ). Upstash gói Free (500K lệnh/tháng) đủ vì mỗi lần kiểm tra chỉ tốn 1–2 lệnh và chỉ áp cho endpoint xác thực. Chọn cho qua khi Redis lỗi (fail-open) vì các endpoint này còn được bảo vệ bởi captcha, cooldown OTP, giới hạn nhập sai OTP và bcrypt.
 - **Webhook trả 5xx khi lỗi hệ thống** để SePay retry (tối đa 7 lần trong 5 giờ); `bank_transactions.sepay_id` unique nên retry an toàn.
 - **Đồng bộ bù và đối soát với SePay API**: webhook chỉ được SePay gửi lại tối đa 7 lần trong 5 giờ; job `sepay-sync` kéo các giao dịch bị lỡ bằng `since_id`, đối soát theo ngày so tổng với SePay. Báo cáo và biểu đồ vẫn tính từ DB vì SePay API chỉ trả dữ liệu giao dịch thô, không có dữ liệu thống kê.
 - **Cron qua cPanel**: lệnh `curl` gọi endpoint; mọi job idempotent và xử lý theo lô, nên cPanel gọi trễ hay gọi lặp đều không sai dữ liệu.
