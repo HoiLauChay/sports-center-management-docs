@@ -27,7 +27,7 @@ REST API JSON dưới prefix `/api/v1`, phục vụ cùng origin với web (ki�
   ```
 
   Bên dưới, phần `response` chỉ ghi nội dung `result`. `errors[].path` có dạng `body.<field>`, `query.<field>`, `params.<field>`. `retryAfter` tính bằng giây.
-- Mã lỗi chung: 401 `UNAUTHORIZED` / `TOKEN_EXPIRED` / `TOKEN_INVALID`, 403 `FORBIDDEN`, 404 `NOT_FOUND`, 409 `CONFLICT`, 422 `VALIDATION_ERROR`, 429 `RATE_LIMITED`, 500 `INTERNAL_ERROR`.
+- Mã lỗi chung: 401 `UNAUTHORIZED` / `TOKEN_EXPIRED` / `TOKEN_INVALID`, 403 `FORBIDDEN`, 404 `NOT_FOUND`, 409 `CONFLICT`, 422 `VALIDATION_ERROR`, 429 `RATE_LIMITED` (kèm `retryAfter`), 500 `INTERNAL_ERROR`.
 - Auth bằng 2 cookie httpOnly, `SameSite=Lax`:
   - `access_token`: JWT HS256, 15 phút, path `/`.
   - `refresh_token`: chuỗi ngẫu nhiên, 30 ngày, path `/api/v1/auth`; server lưu HMAC-SHA256 của token.
