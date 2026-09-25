@@ -20,13 +20,14 @@ Monorepo Turborepo + Bun:
 - Database: Supabase PostgreSQL. Runtime kết nối qua transaction pooler (port 6543, pool tối đa 5 kết nối mỗi instance); migration qua session pooler (port 5432). Migration không chạy trong build của Vercel.
 - Email: Resend, gửi sau khi transaction đã commit (dùng `waitUntil` để không chặn response). Email lỗi được job dọn dẹp gửi lại dựa trên `notifications.email_sent_at`.
 - Nạp ví: SePay (chuyển khoản VietQR, webhook biến động số dư).
+- Rate limit: Upstash Redis (gói Free) qua thư viện `@upstash/ratelimit`.
 - File (avatar, ảnh bìa, file đính kèm session notes): Vercel Blob, upload trực tiếp từ client.
 - Timezone nghiệp vụ: `Asia/Ho_Chi_Minh` (server Vercel chạy UTC; mọi phép tính "hôm nay", slot, lịch dùng timezone này).
 
 ### Bảo mật
 
 - Cookie, kiểm tra `Origin`, captcha: BR_G.2, BR_G.3, BR_G.5; chi tiết ở phần Quy ước của `api.design.md`.
-- Rate limit theo IP cấu hình ở Vercel Firewall (WAF):
+- Rate limit theo IP trong API: `@upstash/ratelimit` + Upstash Redis, thuật toán sliding window, khóa = endpoint + IP client (`x-real-ip`). Vượt giới hạn → 429 `RATE_LIMITED` kèm `retryAfter`:
 
   | Endpoint | Giới hạn |
   |---|---|
@@ -34,6 +35,9 @@ Monorepo Turborepo + Bun:
   | `POST /api/v1/auth/login` | 10 / 15 phút |
   | `POST /api/v1/auth/register`, `POST /api/v1/auth/reset-password` | 30 / 15 phút |
   | `POST /api/v1/auth/refresh` | 120 / 15 phút |
+
+- Upstash không truy cập được → cho request đi qua và ghi log lỗi, để sự cố Redis không chặn đăng nhập. Local không khai báo biến Upstash → tắt rate limit.
+- Vercel Firewall chỉ dùng lớp chống DDoS mặc định, không cấu hình rule rate limit.
 
 - Security headers cho SPA (CSP, HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`) khai báo trong `vercel.json`; API dùng `helmet`.
 - Webhook SePay xác thực bằng API key; endpoint cron xác thực bằng `CRON_SECRET`.
@@ -69,6 +73,7 @@ curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://<domain>/api/v
 | `SEPAY_BANK_ACCOUNT`, `SEPAY_BANK_CODE`, `SEPAY_ACCOUNT_NAME` | api | Thông tin tài khoản nhận tiền và tạo QR |
 | `SEPAY_API_TOKEN` | api | Gọi SePay API (đồng bộ bù, đối soát) |
 | `CRON_SECRET` | api | Xác thực endpoint cron |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | api | Rate limit (bắt buộc ở production) |
 | `BLOB_READ_WRITE_TOKEN` | api | Cấp token upload Vercel Blob |
 | `VITE_TURNSTILE_SITE_KEY` | web | Site key captcha |
 
