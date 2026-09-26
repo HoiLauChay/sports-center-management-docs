@@ -330,6 +330,7 @@ Table wallet_transactions {
   account_id          uuid             [not null]
   transaction_code    varchar(50)      [unique, not null]
   idempotency_key     varchar(150)     [unique, not null]
+  request_hash        char(64)
   type                transaction_type [not null]
   top_up_method       payment_method
   amount              numeric(12,0)    [not null]
@@ -729,6 +730,7 @@ Table orders {
   id                         uuid           [pk, default: `gen_random_uuid()`]
   order_number               varchar(50)    [unique, not null]
   idempotency_key            varchar(150)   [unique, not null]
+  request_hash               char(64)
   account_id                 uuid
   created_by                 uuid
   invoice_snapshot           jsonb          [not null]
