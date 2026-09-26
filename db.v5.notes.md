@@ -120,7 +120,8 @@ CHECK chỉ kiểm tra được dữ liệu trong cùng row. Các invariant dư�
 | Hoàn một buổi học của một enrollment | `refund:session:{sessionId}:{enrollmentId}` |
 | Hoàn khi hủy enrollment/lớp | `refund:enrollment:{enrollmentId}` |
 
-- Request lặp với cùng khóa: trả lại kết quả đã lưu nếu payload khớp, trả 409 nếu payload khác.
+- Request lặp với cùng khóa: trả lại kết quả đã lưu nếu `request_hash` khớp, trả 409 nếu khác.
+- `request_hash` = SHA-256 của body đã validate (bỏ `idempotencyKey`), chỉ lưu với khóa do client sinh (`checkout`, `counter`, `cash`); khóa do hệ thống sinh để `NULL` vì khóa đã xác định nội dung.
 - Hủy lớp đang học hoàn allocation các buổi chưa diễn ra **trừ các buổi đã có** `refund:session:*` của cùng enrollment, nên hủy riêng buổi (D05) rồi hủy cả lớp không hoàn trùng.
 
 ## 5. SePay
